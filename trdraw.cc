@@ -8,6 +8,10 @@
 #include <iostream>
 #include <TColor.h>
 #include <TAxis.h>
+#include <TFrame.h>
+#include <TPave.h>
+#include <TStyle.h>
+#include <TLegend.h>
 
 using namespace std;
 
