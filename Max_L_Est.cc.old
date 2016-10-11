@@ -8,7 +8,6 @@
 #include<string.h>
 #include<math.h>
 #include<vector>
-#include <memory>
 
 int usage(){
 	std::cerr << "Usage : exe sample*.dlt ./LIKE/LogLikeli.dat" << std::endl;
@@ -36,16 +35,6 @@ typedef struct {
 	char sampleid[64];
 	} timpo;
 
-struct fileset {
-	int typem;
-	int k;
-	std::string s;
-
-	fileset(int typem_, int k_, char const *fname) : 
-		typem(typem_), k(k_), s(fname) {}
-	fileset() : typem(-1), k(-1), s() {};
-};
-
 int main(int argc, char **argv){
 	
 	if(argc<3){
@@ -55,7 +44,7 @@ int main(int argc, char **argv){
 	}//if
 
 	int a=0;/* readflag */
-	int i,j,k,m,n;
+	int i,j,k,l,m,n;
 	int flag=0; /* eof flag*/
 	int pljoint; /* sample.dlt */
 	int index[256][128];/*Range:Mass*/
@@ -232,56 +221,49 @@ int main(int argc, char **argv){
 	std::ifstream readssd[j][n];
 	double rmsbin[j][n];
 	int ssdnum = n;
-
-	std::unique_ptr<fileset[]> fset(new fileset[ssdnum*j]);
-
-	for(int typem=0;typem<ssdnum;typem++) {
-		for(k=0;k<j;k++) {
-			sprintf(linebuffer,"./ssd/ssd_%05d_%04d.dat", (int)RMS[0][k], (int)massbin[typem]);
-			fset[typem*j+k] = fileset(typem, k, linebuffer);
-		}
-	}
-
-#pragma omp parallel for
-	for(int i = 0; i<ssdnum*j; i++) {
-		int typem = fset[i].typem;
-		int k = fset[i].k;
-		std::string rf;
+	
+	for(int typem=0;typem<ssdnum;typem++)
+	{
 		std::cerr << (int)massbin[typem] << "...\r";
 		
+		for(k=0;k<j;k++)
+		{
 
-		/* ./ssd/ssd_[range]_[mass].dat */
+			/* ./ssd/ssd_[range]_[mass].dat */
+			sprintf(linebuffer,"./ssd/ssd_%05d_%04d.dat", (int)RMS[0][k], (int)massbin[typem]);
 
 //			std::cerr << "debug mode: " << linebuffer << std::endl;
 			
-		readssd[k][typem].open(fset[i].s.c_str());
+			readssd[k][typem].open(linebuffer);
 
-		if(readssd[k][typem].fail())readerror();
+			if(readssd[k][typem].fail())readerror();
 
-		rmsbin[k][typem]=0.;
+			rmsbin[k][typem]=0.;
 
-		int l=0;
-		   
-		while(readssd[k][typem] && getline(readssd[k][typem], rf))
-		{
-			char buf[1024];
-			sscanf(rf.c_str(),"%*s %*lf %s %*lf %*lf %*lf", buf);
-			SDfile[k][typem][l].dx = atof(buf);
+			l=0;
+			
+			while(readssd[k][typem] && getline(readssd[k][typem], RF))
+			{
+			  char buf[1024];
+			  sscanf(RF.c_str(),"%*s %*lf %s %*lf %*lf %*lf", buf);
+			  SDfile[k][typem][l].dx = atof(buf);
 //				 SDfile[k][typem][l].ID, &SDfile[k][typem][l].Range, &SDfile[k][typem][l].dx, &SDfile[k][typem][l].dy, &SDfile[k][typem][l].dz,&SDfile[k][typem][l].theta);
-			rmsbin[k][typem] += SDfile[k][typem][l].dx * SDfile[k][typem][l].dx;
+				rmsbin[k][typem] += SDfile[k][typem][l].dx * SDfile[k][typem][l].dx;
 
-			l++;
+				l++;
 
-		}//while
+			}//while
 
-		index[k][typem]=l; /* max l num */
+			index[k][typem]=l; /* max l num */
 
-		rmsbin[k][typem]=sqrt(rmsbin[k][typem] / (double)l );
+			rmsbin[k][typem]=sqrt(rmsbin[k][typem] / (double)l );
 
-		rmsbin[k][typem] /= 10.0;
+			rmsbin[k][typem] /= 10.0;
 
-		readssd[k][typem].close();
+			readssd[k][typem].close();
 
+		}//for
+	
 	}//for
 
 	/* debug */	
