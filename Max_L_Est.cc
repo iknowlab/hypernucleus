@@ -244,9 +244,10 @@ int main(int argc, char **argv){
 			
 			while(readssd[k][typem] && getline(readssd[k][typem], RF))
 			{
-
-				sscanf(RF.c_str(),"%s %lf %lf %lf %lf %lf", SDfile[k][typem][l].ID, &SDfile[k][typem][l].Range, &SDfile[k][typem][l].dx, &SDfile[k][typem][l].dy, &SDfile[k][typem][l].dz,&SDfile[k][typem][l].theta);
-
+			  char buf[1024];
+			  sscanf(RF.c_str(),"%*s %*lf %s %*lf %*lf %*lf", buf);
+			  SDfile[k][typem][l].dx = atof(buf);
+//				 SDfile[k][typem][l].ID, &SDfile[k][typem][l].Range, &SDfile[k][typem][l].dx, &SDfile[k][typem][l].dy, &SDfile[k][typem][l].dz,&SDfile[k][typem][l].theta);
 				rmsbin[k][typem] += SDfile[k][typem][l].dx * SDfile[k][typem][l].dx;
 
 				l++;
