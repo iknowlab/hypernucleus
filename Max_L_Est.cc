@@ -17,19 +17,20 @@ int usage(){
 	return 1;
 }
 
-void readerror(){
-	std::cerr << "file error" << std::endl;
+void readerror(const char *filename){
+	std::cerr << "read file error " << filename << std::endl;
 	exit(1);
 }
 
-void writeerror(){
-	std::cerr << "write file error" << std::endl;
+void writeerror(const char *filename){
+	std::cerr << "write file error " << filename << std::endl;
 	exit(1);
 }
 
 typedef struct {
-	char ID[32];
-	double Range,dx,dy,dz,theta;
+//	char ID[32];
+//	double Range,dx,dy,dz,theta;
+	double dx;
 	} dlt;
 
 typedef struct {
@@ -58,18 +59,18 @@ int main(int argc, char **argv){
 	int i,j,k,m,n;
 	int flag=0; /* eof flag*/
 	int pljoint; /* sample.dlt */
-	int index[256][128];/*Range:Mass*/
+	int index[64][64];/*Range:Mass*/
 	
 	/* RMS is divided this parameter */
 	double divide = 5.0;
 	
 	double srange,sdx,sdy,sdz,stheta;
-	double RMS[2][256];	/* RMS */
+	double RMS[2][64];	/* RMS */
 	char sid[32];
-	char linebuffer[2048];	/* １行読み込み */
-	dlt SDfile[256][128][16384];
+	char linebuffer[1024];	/* １行読み込み */
+	dlt SDfile[64][64][200000];
 	/* Particle RangeByStep Delta */
-	timpo s_id[128][16384];
+	timpo s_id[64][1024];
 
 	/* sample read data */
 	std::vector<std::string> line;
@@ -78,7 +79,7 @@ int main(int argc, char **argv){
 /* 8<-------------------- read parameter -------------------->8*/	
 	std::ifstream prm;
 	std::string tag,str,hoge,hage,hageml;
-	double massbin[128];/* Mass */
+	double massbin[64];/* Mass */
 	double param,max,min,Step,Range,err,M_Min,M_Max;
 	int Z;	
 	int prmtrg=0;
@@ -203,12 +204,12 @@ int main(int argc, char **argv){
 	/* RMS.dat */
 	std::ifstream reading_file;
 	reading_file.open("RMS.dat");
-	if(reading_file.fail())readerror();
+	if(reading_file.fail())readerror("RMS.dat");
 	
 	/* open file to WRITE likelihood */
 	std::ofstream writing_file;
 	writing_file.open(argv[2]);
-	if(writing_file.fail())writeerror();
+	if(writing_file.fail())writeerror(argv[2]);
 	
 	/* initialization */
 	j=0;
@@ -256,7 +257,7 @@ int main(int argc, char **argv){
 			
 		readssd[k][typem].open(fset[i].s.c_str());
 
-		if(readssd[k][typem].fail())readerror();
+		if(readssd[k][typem].fail())readerror(fset[i].s.c_str());
 
 		rmsbin[k][typem]=0.;
 
@@ -291,7 +292,7 @@ int main(int argc, char **argv){
 	std::cerr << "read " << argv[1] << "..." << std::endl;
 	std::ifstream sampleread;
 	sampleread.open(argv[1]);
-	if(sampleread.fail())readerror();
+	if(sampleread.fail())readerror(argv[1]);
 
 	while(getline(sampleread,RF))line.push_back(RF);
 
@@ -315,7 +316,7 @@ int main(int argc, char **argv){
 	int numer,denomin;
 
 	/* 尤度保存用の行列を確保 */
-	double likeli[ssdnum][16384];	/* MassNum,SampleNum */
+	double likeli[ssdnum][1024];	/* MassNum,SampleNum */
 
 	/* 質量データ数分の処理を開始 */
 	while(1){

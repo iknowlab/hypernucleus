@@ -10,6 +10,7 @@
 #include <string>
 #include <sstream>
 #include <cstdlib>
+#include <memory>
 
 using namespace std;
 typedef struct{
@@ -126,7 +127,7 @@ public:
 
 		rms = 0;
 
-		for(int j=0; j<10000; j++){
+		for(int j=0; j<200000; j++){
 			th = dist(gen);
 			double dx = (2.* m_step)*(double)th/sqrt(3.);
 			dx /= 2.;
@@ -136,9 +137,9 @@ public:
 
 			rms += dx*dx;
 
-			writing << "test" << j <<"\t" << m_step << "\t" << dx << "\t0.0\t0.0\t" << th << std::endl;
+			writing << "g4method_" << j <<"\t" << (int)m_range << "\t" << dx << "\t0.0\t0.0\t" << th << std::endl;
 		}/* for  */
-\
+
 		writing.close();
 	}
 };/* class end */
@@ -164,7 +165,7 @@ int main(int argc, char *argv[])
 
 		while(reading_file[i] && getline(reading_file[i], RF))
 		{
-			sscanf(RF.c_str(),"%lf %lf %lf %lf",&data[j][i].mass,&data[j][i].range,&data[j][i].ssdx);
+			sscanf(RF.c_str(),"%lf %lf %lf",&data[j][i].mass,&data[j][i].range,&data[j][i].ssdx);
 			data[j][i].theta = data[j][i].ssdx * (double)sqrt(3)/step;
 			j++;
 		}
@@ -178,7 +179,10 @@ int main(int argc, char *argv[])
 	std::cerr << "commandline: mkdir ssd" << std::endl;
 	system("mkdir ssd");
 
+	std::cerr << "generate ssdfile" << std::endl;
+
 	for(i=0;i<argc-1;i++){
+
 		for(j=0;j<max_j;j++)
 		{
 			inv_a = 2.0*(1.0-cos(data[j][i].theta));
@@ -190,7 +194,10 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "%2.0lf%\r", progress);
 //			std::cerr << "test\t" << mcsd.th << std::endl;
 		}
-	}
+
+	}//for
+
+	std::cerr << "generating ssdfile is end!" << std::endl;
 
 	/* RMSfile will be edited */	
 	writing_rms.open("RMS.dat");
@@ -199,7 +206,7 @@ int main(int argc, char *argv[])
 	for(j=0;j<max_j;j++){
 		double RMS_byRange = 0.;
 		for(i=0;i<argc-1;i++)RMS_byRange += rmssum[j][i];/* For function by Mass */
-		RMS_byRange = sqrt(RMS_byRange/((double)(argc-1)*10000.0));
+		RMS_byRange = sqrt(RMS_byRange/((double)(argc-1)*200000.0));
 //		cerr << data[j][0].range << "\t" << RMS_byRange << endl;
 		/* Range:RMS in file */
 		writing_rms << data[j][0].range << "\t" << RMS_byRange << endl;
