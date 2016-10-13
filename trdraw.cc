@@ -72,27 +72,50 @@ public:
 			for(int i=0;i<NCont;++i){ MyPalette[i] = FI+i; }
 
 			g[k-1]->SetTitle(Argv(k));
-			g[k-1]->SetMarkerStyle(20);
-			g[k-1]->SetMarkerSize(0.5);
-			g[k-1]->SetLineWidth(0.8);
+			g[k-1]->SetMarkerStyle(21);
+			g[k-1]->SetMarkerSize(0.6);
+			g[k-1]->SetLineWidth(1);
 			g[k-1]->SetMarkerColor(MyPalette[k*NCont/Argc()]);
-			g[k-1]->SetLineColor(MyPalette[k*NCont/Argc()]);
+			g[k-1]->SetLineColor(0);//MyPalette[k*NCont/Argc()]);
 			
 			mg1.Add(g[k-1]);
 
 		}//for
 
+	gStyle->SetTitleTextColor(kBlue+4);
+	gStyle->SetLineWidth(2);
+
 	}
 		
 	void Runn(){
 		c.cd();
+		
+
+		c.SetFrameFillStyle(1);
+		c.SetFillColor(kGray+2);
+		c.SetFrameFillColor(kGray+3);
+		c.SetFrameLineColor(0);
+
 		mg1.Draw("APL");
 		mg1.SetTitle("RMS by Range");
 		mg1.SetMinimum(0.);
 		mg1.GetYaxis()->SetTitle("#delta_{X'} [#mum]");
 		mg1.GetXaxis()->SetTitle("Range [#mum]");
 		gPad->Modified();
-		c.BuildLegend(0.55,0.75,0.9,0.9,"2nd diff");
+		TLegend *tl = c.BuildLegend(0.55,0.75,0.9,0.9,"2nd diff");
+
+		mg1.GetXaxis()->SetTitleColor(kBlue+4);
+		mg1.GetYaxis()->SetLabelColor(kBlue+4);
+		mg1.GetXaxis()->SetAxisColor(17);
+		mg1.GetYaxis()->SetTitleColor(kBlue+4);
+		mg1.GetXaxis()->SetLabelColor(kBlue+4);
+		mg1.GetYaxis()->SetAxisColor(17);
+
+		tl->SetFillStyle(0);
+		tl->SetTextColor(kBlue-10);
+		tl->SetLineColor(17);
+		tl->SetLineWidth(2);
+	
 //		c.WaitPrimitive();
 	}
 
