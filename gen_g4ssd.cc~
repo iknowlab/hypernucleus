@@ -128,7 +128,6 @@ public:
 		rms = 0;
 
 		for(int j=0; j<10000; j++){
-			char buf[1024];
 			th = dist(gen);
 			double dx = (2.* m_step)*(double)th/sqrt(3.);
 			dx /= 2.;
@@ -138,8 +137,7 @@ public:
 
 			rms += dx*dx;
 
-			sprintf(buf,"g4method_%06d\t%04d\t%lf\t0.0\t0.0\t%lf\n",j,(int)m_range,dx,th);
-			writing << buf;
+			sprintf(writing,"g4method_%06d\t%04d\t%lf\t0.0\t0.0\t%lf\n",j,(int)m_range,dx,th);
 //			writing << "g4method_" << j <<"\t" << (int)m_range << "\t" << dx << "\t0.0\t0.0\t" << th << std::endl;
 		}/* for  */
 

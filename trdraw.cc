@@ -67,7 +67,7 @@ public:
 			Double_t red[NRGBs] = {0.0,0.0,0.87,1.0,1.0};
 			Double_t green[NRGBs] = {0.0,0.81,1.0,0.20,0.0};
 			Double_t blue[NRGBs] = {0.51,1.00,0.12,0.00,0.00};
-			Double_t stop[NRGBs] = {0.0,0.34,0.61,0.84,1.00};
+			Double_t stop[NRGBs] = {0.0,0.25,0.50,0.75,1.00};
 			Int_t FI = TColor::CreateGradientColorTable(NRGBs,stop,red,green,blue,NCont);
 			for(int i=0;i<NCont;++i){ MyPalette[i] = FI+i; }
 
@@ -76,7 +76,7 @@ public:
 			g[k-1]->SetMarkerSize(0.6);
 			g[k-1]->SetLineWidth(1);
 			g[k-1]->SetMarkerColor(MyPalette[k*NCont/Argc()]);
-			g[k-1]->SetLineColor(0);//MyPalette[k*NCont/Argc()]);
+			g[k-1]->SetLineColor(1);//MyPalette[k*NCont/Argc()]);
 			
 			mg1.Add(g[k-1]);
 
@@ -90,11 +90,10 @@ public:
 	void Runn(){
 		c.cd();
 		
-
+		c.SetFillColor(0);
 		c.SetFrameFillStyle(1);
-		c.SetFillColor(kGray+2);
-		c.SetFrameFillColor(kGray+3);
-		c.SetFrameLineColor(0);
+		c.SetFrameFillColor(kGray);
+		c.SetFrameLineColor(1);
 
 		mg1.Draw("APL");
 		mg1.SetTitle("RMS by Range");
@@ -106,14 +105,14 @@ public:
 
 		mg1.GetXaxis()->SetTitleColor(kBlue+4);
 		mg1.GetYaxis()->SetLabelColor(kBlue+4);
-		mg1.GetXaxis()->SetAxisColor(17);
+		mg1.GetXaxis()->SetAxisColor(1);
 		mg1.GetYaxis()->SetTitleColor(kBlue+4);
 		mg1.GetXaxis()->SetLabelColor(kBlue+4);
-		mg1.GetYaxis()->SetAxisColor(17);
+		mg1.GetYaxis()->SetAxisColor(1);
 
 		tl->SetFillStyle(0);
-		tl->SetTextColor(kBlue-10);
-		tl->SetLineColor(17);
+		tl->SetTextColor(kBlue+4);
+		tl->SetLineColor(1);
 		tl->SetLineWidth(2);
 	
 //		c.WaitPrimitive();

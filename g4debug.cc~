@@ -127,8 +127,7 @@ public:
 
 		rms = 0;
 
-		for(int j=0; j<10000; j++){
-			char buf[1024];
+		for(int j=0; j<200000; j++){
 			th = dist(gen);
 			double dx = (2.* m_step)*(double)th/sqrt(3.);
 			dx /= 2.;
@@ -138,9 +137,8 @@ public:
 
 			rms += dx*dx;
 
-			sprintf(buf,"g4method_%06d\t%04d\t%lf\t0.0\t0.0\t%lf\n",j,(int)m_range,dx,th);
-			writing << buf;
-//			writing << "g4method_" << j <<"\t" << (int)m_range << "\t" << dx << "\t0.0\t0.0\t" << th << std::endl;
+//			fprintf(writing,"g4method_%06d\t%04d\t%lf\t0.0\t0.0",j,(int)m_range,dx);
+			writing << "g4method_" << j <<"\t" << (int)m_range << "\t" << dx << "\t0.0\t0.0\t" << th << std::endl;
 		}/* for  */
 
 		writing.close();
@@ -209,7 +207,7 @@ int main(int argc, char *argv[])
 	for(j=0;j<max_j;j++){
 		double RMS_byRange = 0.;
 		for(i=0;i<argc-1;i++)RMS_byRange += rmssum[j][i];/* For function by Mass */
-		RMS_byRange = sqrt(RMS_byRange/((double)(argc-1)*10000.0));
+		RMS_byRange = sqrt(RMS_byRange/((double)(argc-1)*200000.0));
 //		cerr << data[j][0].range << "\t" << RMS_byRange << endl;
 		/* Range:RMS in file */
 		writing_rms << data[j][0].range << "\t" << RMS_byRange << endl;
