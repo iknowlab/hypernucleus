@@ -15,7 +15,7 @@ int main(int argc,char **argv)//main
 {
 	if(argc<2){
 		fprintf(stderr,"usage)\n%s ssdfile(*)\n",argv[0]);
-		fprintf(stderr,"option: [-b nbins Low High]");
+		fprintf(stderr,"option: [-b nbins Low High]\n");
 		return 0;
 	}
 
