@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <TH1.h>
 #include <TCanvas.h>
 #include <TStyle.h>
@@ -14,6 +15,7 @@ int main(int argc,char **argv)//main
 {
 	if(argc<2){
 		fprintf(stderr,"usage)\n%s ssdfile(*)\n",argv[0]);
+		fprintf(stderr,"option: [-b nbins Low High]");
 		return 0;
 	}
 
@@ -28,8 +30,25 @@ int main(int argc,char **argv)//main
 	Int_t FI = TColor::CreateGradientColorTable(NRGBs,stop,red,green,blue,NCont);
 	for(int i=0;i<NCont;++i){ MyPalette[i] = FI+i;}
 
+	double bin,max,min;
+	bin = 20.0;
+	min = -10.;
+	max = 10.;
+	int param = 0;
+	if(strncmp(argv[1],"-b",2)==0){
+		bin = atof(argv[2]);
+		min = atof(argv[3]);
+		max = atof(argv[4]);
+		param = 4;
+	}
+	char *filename[argc-param];
+	for(int index=0;index<argc-param;index++){
+		filename[index]=argv[index+param];
+	}//for
+	argc -= param;
+
 	//TRint
-	TRint app("app",&argc,argv,0,0,kTRUE);
+	TRint app("app",&argc,filename,0,0,kTRUE);
 	
 	char buf[32];
 	char id[16];
@@ -45,11 +64,11 @@ int main(int argc,char **argv)//main
 
 		ifstream data(app.Argv(i+1));
 		if(!data){
-			fprintf(stderr,"end!");
+			fprintf(stderr,"%s end!",app.Argv(i+1));
 			return 0;
 		}
 
-		h[i] = new TH1D(buf,"2nd_diff_Distro;SD^{X'}",20,-10,10);
+		h[i] = new TH1D(buf,"2nd_diff_Distro;SD^{X'}",bin,min,max);
 //		h[i] = new TH1D();
 		
 		while(data>>dx)h[i]->Fill(dx);
