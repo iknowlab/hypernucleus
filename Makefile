@@ -14,7 +14,7 @@ PREFIX?= ../
 BINDIR?= $(PREFIX)/bin
 ROOTBINDIR?= $(PREFIX)/rootfile
 
-CXXFLAGS +=-std=c++0x 
+CXXFLAGS +=-std=c++0x -fopenmp 
 ROOTFLAGS = `root-config --cflags`
 ROOTLIBS = `root-config --libs`
 CXX :=/opt/rh/devtoolset-2/root/usr/bin/g++
