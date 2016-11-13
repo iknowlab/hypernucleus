@@ -10,9 +10,9 @@
 #include<vector>
 #include <memory>
 
-int usage(){
-	std::cerr << "Usage : exe sample*.dlt ./LIKE/LogLikeli.dat" << std::endl;
-	std::cerr << "needfile : ConfigFile, RMSdata, SampleFile, OutputFile," << std::endl;
+int usage(int argc, char **argv){
+	std::cerr << "Usage : " << argv[0] << " samplefile outputfile" << std::endl;
+	std::cerr << "need) : ConfigFile, RMSdata, SampleFile, OutputFile," << std::endl;
 	std::cerr << "dialogic operation mode..." <<std::endl;
 	return 1;
 }
@@ -50,7 +50,7 @@ struct fileset {
 int main(int argc, char **argv){
 	
 	if(argc<3){
-		int nope = usage();
+		int nope = usage(argc, argv);
 		std::cerr << "...not enough" << std::endl;
 		exit(1);
 	}//if
@@ -91,7 +91,7 @@ int main(int argc, char **argv){
 		prm.open("pid.conf");
 		if(prm.fail()){
 			std::cerr << "cant open \"pid config file\" !" << std::endl;
-			a=usage();//argcを減らす(false)
+			a=usage(argc,argv);//argcを減らす(false)
 		}//if
 		while(prm && getline(prm,str))
 		{
