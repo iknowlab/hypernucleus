@@ -37,7 +37,7 @@ int readerr(const char *filename){
 //散乱角θ0を計算
 double Theta0(double Mass, double KE, double z, double t, double Density){
 
-	double X0 = 29690.;//*(3.6/Density);
+	double X0 = 29690.*(3.6/Density);
 	// Radiation Length of ET-7C/D emulsion
 	
 	double P = Momentum(Mass,KE);
@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
 	/* value */
 	RR = 1.0;
 	D = 3.60;
+//	D = 3.25;
 
 /* read parameter */
 	if(argc==2){
