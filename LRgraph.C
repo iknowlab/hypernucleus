@@ -7,6 +7,9 @@
 #include <iostream>
 #include <TROOT.h>
 
+#include <math.h>
+#include <string.h>
+
 using namespace std;
 
 int main(int argc,char **argv)//main
@@ -19,6 +22,8 @@ int main(int argc,char **argv)//main
 	TRint app("app",&argc,argv,0,0,kTRUE);
 	
 	int item;
+	bool logflag;
+	char log[16];
 	char ID[16];
 //	char CampusName[64];
 	char GraphName[app.Argc()-1][64];
@@ -64,12 +69,24 @@ int main(int argc,char **argv)//main
 		data.close();
 	}//for argc
 
+	while(1){
+		cerr << "LogLikelihood? yes(y) or no(n)\t" << endl;
+		cin >> log;
+//		cerr << log;
+		if(strncmp(log,"y",1)==0){logflag=true;break;}
+		else if(strncmp(log,"n",1)==0){logflag=false;break;}
+		else continue;
+	}//while
+
 	for(int m=0;m<(app.Argc()-1);m++){
 		for(int l=0;l<max[m];l++){
-			LR = likeli[m][l] / (likeli[m][l]+likeli[m+1][l]);
+			if(logflag==false)LR = likeli[m][l] / (likeli[m][l]+likeli[m+1][l]);
+			else LR = exp(likeli[m][l]) / (exp(likeli[m][l])+exp(likeli[m+1][l]));
+
 			cerr << LR << endl;
 			if(LR == 1.0)LR = 0.999999;
 			h1 -> Fill(LR);
+
 		}//for data num
 		m++;
 	}//for argc

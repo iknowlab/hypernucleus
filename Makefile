@@ -17,8 +17,8 @@ ROOTBINDIR?= $(PREFIX)/rootfile
 CXXFLAGS +=-std=c++0x -fopenmp 
 ROOTFLAGS = `root-config --cflags`
 ROOTLIBS = `root-config --libs`
-CXX :=/opt/rh/devtoolset-3/root/usr/bin/g++
-
+CXX :=/opt/rh/devtoolset-2/root/usr/bin/g++
+#CXX :=/opt/rh/devtoolset-3/root/usr/bin/g++
 
 all:	bin root
 bin:	$(TARGET)
