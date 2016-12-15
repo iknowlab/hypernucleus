@@ -110,6 +110,7 @@ int main(int argc, char **argv){
 
 	/* Draw */
 	c->cd();
+	c->SetGrid();
 	mg->Draw("APL");
 	mg->SetTitle("Maximum Log-Likelihood Estimation");
 	mg->GetYaxis()->SetTitle("Log-Likelihood");

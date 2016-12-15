@@ -91,9 +91,10 @@ public:
 		c.cd();
 		
 		c.SetFillColor(0);
-		c.SetFrameFillStyle(1);
+//		c.SetFrameFillStyle(1);
 		c.SetFrameFillColor(kGray);
 		c.SetFrameLineColor(1);
+		c.SetGrid();
 
 		mg1.Draw("APL");
 		mg1.SetTitle("RMS by Range");

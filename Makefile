@@ -4,7 +4,7 @@
 .DEFAULT:
 
 TARGET = LogLikelihood MCS_massrange Max_L_Est PDG_gen_ssd c1111 g4debug gen_g4ssd imputR likelihooood mc_loglikelihood meas_q pid_config ref2ssd sample sample_g4 test_ssd thing
-TARGETROOT = LLGraph LRgraph ssdhist trdraw trdraw-b
+TARGETROOT = LLGraph LRgraph ssdhist ssdhist_mario trdraw trdraw-b
 TARGETCOPY = G4referenceout.awk
 
 INSTALL = install -c -m 775
