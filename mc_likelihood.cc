@@ -12,7 +12,7 @@
 #include<vector>
 
 int usage(){
-	std::cerr << "Usage : exe sample*.dlt ./LIKE/LogLikeli.dat" << std::endl;
+	std::cerr << "Usage : exe sample*.dlt ./LIKE/Likeli.dat" << std::endl;
 	std::cerr << "needfile : ConfigFile, RMSdata, SampleFile, OutputFile," << std::endl;
 	std::cerr << "dialogic operation mode..." <<std::endl;
 	std::cerr << "ファイル\"pid.conf\"に従った質量、飛程領域で尤度を出します" << std::endl;
@@ -376,8 +376,8 @@ int main(int argc, char **argv){
 			NLL = Lx;
 		
 	/* 算出された尤度を出力 */
-			sprintf(linebuffer,"%s\t%lf\t%d\n",sid,NLL,k);
-	//		sprintf(linebuffer,"%s\t%.10e\t%d\n",sid,Lx,k);
+//			sprintf(linebuffer,"%s\t%lf\t%d\n",sid,NLL,k);
+			sprintf(linebuffer,"%s\t%.10e\t%d\n",sid,Lx,k);
 			std::cout << linebuffer;
 			likeli[mass][count]=NLL;
 			writing_file[mass] << linebuffer;		
