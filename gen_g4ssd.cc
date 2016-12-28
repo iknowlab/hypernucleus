@@ -29,6 +29,7 @@ void readerr(const char *filename){
 	exit(1);
 }
 
+/* read parameter function */
 double Read_Param(const char *need){
 	std::ifstream prm;
 	std::string tag,str;
@@ -69,7 +70,9 @@ double Read_Param(const char *need){
 	return param;
 }
 
+/* Function FROM :geant4 physics reference manual... */
 double f(double th, double a){
+
 	double d = 2.;
 	double b = (d - 3. + a )/a;
 	double u0_th = acos(1.-3/a);
@@ -112,15 +115,22 @@ public:
 		vector<double> i;
 		vector<double> v;
 		ofstream writing;
+
+		/* メルセンヌツイスタ乱数の呼び出し */
 		mt19937 gen;
+
 		char linebuffer[1024];
+
+		/* make bins of function */
 		for(double x=-th_lim; x<th_lim; x+=eps){
 			i.push_back(x);
 			v.push_back(f(x,a));
 		}/* for end */
 
+		/* make distribution function(class) */
 		std::piecewise_linear_distribution<> dist(i.begin(), i.end(), v.begin());
-	
+
+		/* make file */
 		sprintf(linebuffer, "./ssd/ssd_%05d_%04d.dat",(int)m_range,(int)m_mass);
 		writing.open(linebuffer);
 		if(!writing)readerr(linebuffer);
@@ -128,16 +138,26 @@ public:
 		rms = 0;
 
 		for(int j=0; j<10000; j++){
+
 			char buf[1024];
+
+			/* generate random theta */
 			th = dist(gen);
+
+			/* convert to 2nd difference */
 			double dx = (2.* m_step)*(double)th/sqrt(3.);
 			dx /= 2.;
 
-			normal_distribution<double> gauss(0,error);
-			dx += gauss(gen);
-
+			/* ガウス分布によって測定誤差を与える */
+			if(error>0.01){
+				normal_distribution<double> gauss(0,error);
+				dx += gauss(gen);
+			}
+			
+			/* calc root mean square */
 			rms += dx*dx;
 
+			/* write to file */
 			sprintf(buf,"g4method_%06d\t%04d\t%lf\t0.0\t0.0\t%lf\n",j,(int)m_range,dx,th);
 			writing << buf;
 //			writing << "g4method_" << j <<"\t" << (int)m_range << "\t" << dx << "\t0.0\t0.0\t" << th << std::endl;
@@ -149,7 +169,9 @@ public:
 
 int main(int argc, char *argv[])
 {
+
 	if(argc<2)howto();
+
 	double step,error,dx,theta_p,cutval,a,inv_a,rmsout;
 	int i,j,k;
 	std::string RF,write_line_buffer;
@@ -157,11 +179,15 @@ int main(int argc, char *argv[])
 	std::ofstream writing_rms;
 	struct_rmsdata data[128][argc-1];
 
+	/* read parameter */
 	step = Read_Param("Step");
 	error = Read_Param("Meas._Err");
 
+	/* read RMSfile */
 	for(i=0;i<argc-1;i++){/* read file */
+
 		reading_file[i].open(argv[i+1]);
+
 		if(reading_file[i].fail())readerr(argv[i+1]);
 		j=0;
 		std::cerr << "read " << argv[i+1] << "..." << std::endl;
