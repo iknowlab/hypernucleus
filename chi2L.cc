@@ -10,6 +10,7 @@ int main(int argc,char *fname[]){
 	int Nrd;	/* シミュレーション側データ数 */
 	int div;	/* 分布の分割数 */
 	int rst;	/* 制約条件数 */
+	int ndf; /* 自由度 */
 	double P1;	/* 片方の尤度 */
 	double P2;	/* もう一方の尤度 */
 	double LikeRatio[100000];	/* 尤度比 */
@@ -130,6 +131,7 @@ int main(int argc,char *fname[]){
 				freq++;
 		}
 		
+			
 		/* 期待値の計算 */
 		Ek[loop-1] = ((double) freq)/((double) Ncmp);
 	}
@@ -186,6 +188,9 @@ int main(int argc,char *fname[]){
 		line[0]++;
 	}
 	
+	/* 自由度の初期化 */
+	ndf=0;
+	
 	/* 各分割要素における度数を計算 */
 	for(loop=1; loop<=div; loop++){
 		
@@ -204,6 +209,9 @@ int main(int argc,char *fname[]){
 				freq++;
 			
 		}
+		
+		/* 自由度の計算 */
+		if(freq>0)ndf++;
 		
 		/* 度数を保存 */
 		Ok[loop-1] = (double) freq;
@@ -236,7 +244,7 @@ int main(int argc,char *fname[]){
 			Lthresh[loop-1],Lthresh[loop],Ok[loop-1]);
 	printf(">\n");
 	printf("> --------------------------------------------------\n");
-	
+		
 	/* χ2乗値のクリア */
 	SUM_Chi2 = 0;
 	
@@ -245,7 +253,8 @@ int main(int argc,char *fname[]){
 		SUM_Chi2 = SUM_Chi2 + (Ok[loop-1] - Ek[loop-1])*(Ok[loop-1] - Ek[loop-1])/Ek[loop-1];
 	
 	/* χ2乗値の計算結果を表示 */
-	printf("> Chi^2/ndf = %.3f/%d = %.3f\n",SUM_Chi2,div-rst,SUM_Chi2/((double) (div-rst)));
+//	printf("> Chi^2/ndf = %.3f/%d = %.3f\n",SUM_Chi2,div-rst,SUM_Chi2/((double) (div-rst)));
+	printf("> Chi^2/ndf = %.3f/%d = %.3f\n",SUM_Chi2,ndf,SUM_Chi2/((double)ndf));
 	
 	/* Fileを閉じる */
 	fclose(rf1);
