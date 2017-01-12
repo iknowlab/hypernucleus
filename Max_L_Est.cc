@@ -238,6 +238,7 @@ int main(int argc, char **argv){
 
 	for(int typem=0;typem<ssdnum;typem++) {
 		for(k=0;k<j;k++) {
+			/* ./ssd/ssd_[range]_[mass].dat */
 			sprintf(linebuffer,"./ssd/ssd_%05d_%04d.dat", (int)RMS[0][k], (int)massbin[typem]);
 			fset[typem*j+k] = fileset(typem, k, linebuffer);
 		}
@@ -249,11 +250,8 @@ int main(int argc, char **argv){
 		int k = fset[i].k;
 		std::string rf;
 		std::cerr << (int)massbin[typem] << "...\r";
-		
 
-		/* ./ssd/ssd_[range]_[mass].dat */
-
-//			std::cerr << "debug mode: " << linebuffer << std::endl;
+//		std::cerr << "debug mode: " << linebuffer << std::endl;
 			
 		readssd[k][typem].open(fset[i].s.c_str());
 
@@ -262,7 +260,7 @@ int main(int argc, char **argv){
 		rmsbin[k][typem]=0.;
 
 		int l=0;
-		   
+		
 		while(readssd[k][typem] && getline(readssd[k][typem], rf))
 		{
 			char buf[1024];
@@ -450,11 +448,15 @@ int main(int argc, char **argv){
 	/* 最大値から1/2を引いたものを越える場合、その一つ前の番号を記録 */
 			if((maxlikeli - 0.5) < likeli[mass][smpl]){
 				NLL_ErrMin = likeli[mass-1][smpl];
-				/* 越えた値から越える1つ前の値で傾きを取る。越えた質量値から、傾きの逆数に0.5をかけた質量の変化量を引く */
-//				Mass_ErrMin = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl]))
-//				* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
-				Mass_ErrMin = massbin[mass-1];
+				/* 越えた値から越える1つ前の値で傾きを取る。							*/
+				/* 越えた質量値から、傾きの逆数に0.5をかけた質量の変化量を引く */
+				Mass_ErrMin = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl]))
+				* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
+
+				/* 傾きを取らない */
+//				Mass_ErrMin = massbin[mass-1];
 				break;
+
 			}//if and for-loop end
 
 	/* 続きから */
@@ -462,10 +464,14 @@ int main(int argc, char **argv){
 	/* 最尤値を越えてなおかつ、最大値から1/2を引いたものを下回った場合、その番号を記録しループから抜ける */
 			if(likelimass < massbin[mass] && (maxlikeli - 0.5) > likeli[mass][smpl]){
 				NLL_ErrMax = likeli[mass-1][smpl];
-				/* 越えた値から越える1つ前の値で傾きを取る。越えた質量値から、傾きの逆数に0.5をかけた質量の変化量を引く */
-//				Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl])) 
-//				* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
-				Mass_ErrMax = massbin[mass];
+				/* 越えた値から越える1つ前の値で傾きを取る。							*/
+				/* 越えた質量値から、傾きの逆数に0.5をかけた質量の変化量を引く */
+
+				Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl])) 
+				* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
+				
+				/* 傾きを取らない */
+//				Mass_ErrMax = massbin[mass];
 				break;
 			}//if and for-loop end
 
