@@ -10,6 +10,7 @@
 #include<vector>
 #include <memory>
 
+/* 使い方 */
 int usage(int argc, char **argv){
 	std::cerr << "Usage : " << argv[0] << " samplefile outputfile" << std::endl;
 	std::cerr << "need) : ConfigFile, RMSdata, SampleFile, OutputFile," << std::endl;
@@ -17,26 +18,31 @@ int usage(int argc, char **argv){
 	return 1;
 }
 
+/* エラーメッセージ */
 void readerror(const char *filename){
 	std::cerr << "read file error " << filename << std::endl;
 	exit(1);
 }
 
+/* エラーメッセージ */
 void writeerror(const char *filename){
 	std::cerr << "write file error " << filename << std::endl;
 	exit(1);
 }
 
+/* 二次変位を格納する箱 */
 typedef struct {
 //	char ID[32];
 //	double Range,dx,dy,dz,theta;
 	double dx;
 	} dlt;
 
+/* event name box */
 typedef struct {
 	char sampleid[64];
 	} timpo;
 
+/* for read files */
 struct fileset {
 	int typem;
 	int k;
@@ -413,14 +419,17 @@ int main(int argc, char **argv){
 
 	/* 8<------------- Maximum Likelihood Estimation ------------------->8 */
 	std::cerr << "Calc Maximum Likelihood Estimation..." << std::endl;
+	/* 標準出力データの説明 */
+	std::cout << "SampleID\tMaxL\tMass\tM_Min\tM_Max" << std::endl;
 	
+	/* run times of sample number */
 	for(int smpl=0;smpl<count;smpl++){
 	
 	/* サンプル名を書き込む */
 		writing_file << "[SampleName]\t"<<s_id[0][smpl].sampleid << std::endl;
 
 	/* 尤度の最大値を初期化 */
-		double maxlikeli,NLL_ErrMin,NLL_ErrMax,likelimass;
+		double maxlikeli,NLL_ErrMin,NLL_ErrMax,likelimass; /* NLL:Natural Log Likelihood */
 		double Mass_ErrMin=0.;
 		double Mass_ErrMax=0.;
 
@@ -437,46 +446,85 @@ int main(int argc, char **argv){
 
 	/* ファイルに質量と尤度を書き込む */
 			sprintf(linebuffer, "%4.2lf\t%lf", massbin[mass], likeli[mass][smpl]);
-			writing_file << linebuffer << std::endl;
+			writing_file << linebuffer << std::endl; /* LogLikelihoodを出力するため，LLGraphで読み込める */
 		}//for
 
 	/* 改行(サンプル区切り) */
 		writing_file << std::endl;
 
+	/* 質量値が最小値または,最大値であった場合 */
+		if(likelimass==massbin[0]||likelimass==massbin[ssdnum-1]){
+
+	/* 質量値を表示する． */
+			sprintf(linebuffer, "%s\t%4.2lf\t%.0lf\t---\t---",s_id[0][smpl].sampleid,maxlikeli,likelimass);
+			std::cout << linebuffer << std::endl;
+			//writing_file << linebuffer << std::endl;
+
+	/* この飛跡の最尤推定を終了する */
+			continue;
+		}//if
+
 	/* 最大値から±1の質量値の確定 */
-		for(mass=1;mass<ssdnum;mass++)
+		for(mass=0;mass<ssdnum;mass++){
 	/* 最大値から1/2を引いたものを越える場合、その一つ前の番号を記録 */
 			if((maxlikeli - 0.5) < likeli[mass][smpl]){
-				NLL_ErrMin = likeli[mass-1][smpl];
-				/* 越えた値から越える1つ前の値で傾きを取る。							*/
-				/* 越えた質量値から、傾きの逆数に0.5をかけた質量の変化量を引く */
-				Mass_ErrMin = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl]))
-				* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
 
-				/* 傾きを取らない */
+	/* not used */
+				if(mass!=0)NLL_ErrMin = likeli[mass-1][smpl];
+				else NLL_ErrMin = likeli[mass][smpl];
+
+	/* 越えた値から越える1つ前の値で傾きを取る。							*/
+	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
+				if(mass!=0){
+					if(likeli[mass-1][smpl]<likeli[mass][smpl]){//正常
+						Mass_ErrMin = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl]))
+						* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
+					}else{				
+						Mass_ErrMin = massbin[mass] - (0.5 - (maxlikeli-likeli[mass-1][smpl]))
+						* ((likelimass-massbin[mass-1])/(maxlikeli-likeli[mass-1][smpl]));
+					}//if
+				}else{/* mass==0 */
+					Mass_ErrMin = likelimass - (0.5 - (maxlikeli-likeli[mass][smpl]))
+					* ((maxlikeli-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
+				}
+
+	/* 傾きを取らない */
 //				Mass_ErrMin = massbin[mass-1];
 				break;
 
 			}//if and for-loop end
+		
+		}//for
 
 	/* 続きから */
-		for(mass;mass<ssdnum;mass++)
-	/* 最尤値を越えてなおかつ、最大値から1/2を引いたものを下回った場合、その番号を記録しループから抜ける */
-			if(likelimass < massbin[mass] && (maxlikeli - 0.5) > likeli[mass][smpl]){
-				NLL_ErrMax = likeli[mass-1][smpl];
-				/* 越えた値から越える1つ前の値で傾きを取る。							*/
-				/* 越えた質量値から、傾きの逆数に0.5をかけた質量の変化量を引く */
+		for(mass;mass<ssdnum;mass++){
+	/* 最尤値の質量を越えてなおかつ，最大値から1/2を引いたものを下回った場合，	*/
+	/* その番号を記録しループから抜ける.													*/
+	/*	最後の質量値まで来ない場合は強制トリガー											*/
+			if((likelimass < massbin[mass] && (maxlikeli - 0.5) > likeli[mass][smpl])||mass==(ssdnum-1)){
 
-				Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl])) 
-				* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
-				
-				/* 傾きを取らない */
+	/* not used */
+				NLL_ErrMax = likeli[mass-1][smpl];
+
+	/* 越えた値から越える1つ前の値で傾きを取る．							*/
+	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
+				if(likeli[mass-1][smpl]>likeli[mass][smpl]){/* 正常 */
+					Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl])) 
+					* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
+				}else{
+					Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-maxlikeli)) 
+					* ((massbin[mass]-likelimass)/(likeli[mass][smpl]-maxlikeli));
+				}//if
+	/* 傾きを取らない */
 //				Mass_ErrMax = massbin[mass];
 				break;
 			}//if and for-loop end
 
+		}//for
+
 	/* 記録した最尤値における尤度、質量値、質量誤差をそれぞれアウトプットする */
-		sprintf(linebuffer, "%s\t%lf\t%lf\t%.0lf\t%.0lf",s_id[0][smpl].sampleid,maxlikeli,likelimass,likelimass-Mass_ErrMin,Mass_ErrMax-likelimass);
+		sprintf(linebuffer, "%s\t%4.2lf\t%.0lf\t%.0lf\t%.0lf",
+		s_id[0][smpl].sampleid,maxlikeli,likelimass,likelimass-Mass_ErrMin,Mass_ErrMax-likelimass);
 		std::cout << linebuffer << std::endl;
 		//writing_file << linebuffer << std::endl;
 
