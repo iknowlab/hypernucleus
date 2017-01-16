@@ -73,18 +73,25 @@ int main(int argc,char **argv)//main
 		cerr << "LogLikelihood? yes(y) or no(n)\t" << endl;
 		cin >> log;
 //		cerr << log;
-		if(strncmp(log,"y",1)==0){logflag=true;break;}
-		else if(strncmp(log,"n",1)==0){logflag=false;break;}
-		else continue;
+		if(strncmp(log,"y",1)==0){
+			logflag=true;
+			cerr << logflag << endl;
+			break;
+		}else if(strncmp(log,"n",1)==0){
+			logflag=false;
+			cerr << logflag << endl;
+			break;
+		}else continue;
 	}//while
 
 	for(int m=0;m<(app.Argc()-1);m++){
 		for(int l=0;l<max[m];l++){
+
 			if(logflag==false)LR = likeli[m][l] / (likeli[m][l]+likeli[m+1][l]);
 			else LR = exp(likeli[m][l]) / (exp(likeli[m][l])+exp(likeli[m+1][l]));
-
 			cerr << LR << endl;
-			if(LR == 1.0)LR = 0.999999;
+
+			if(LR == 1.0)LR = 0.99999;
 			h1 -> Fill(LR);
 
 		}//for data num
