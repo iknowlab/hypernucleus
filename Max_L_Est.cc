@@ -477,16 +477,16 @@ int main(int argc, char **argv){
 	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
 				if(mass!=0){
 					if(likeli[mass-1][smpl]<likeli[mass][smpl]){//正常
-						Mass_ErrMin = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl]))
+						Mass_ErrMin = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-0.5)
 						* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
 					}else{				
-						Mass_ErrMin = massbin[mass] - (0.5 - (maxlikeli-likeli[mass-1][smpl]))
-						* ((likelimass-massbin[mass-1])/(maxlikeli-likeli[mass-1][smpl]));
+						Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-0.5)
+						* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
 					}//if
-				}else{/* mass==0 */
-					Mass_ErrMin = likelimass - (0.5 - (maxlikeli-likeli[mass][smpl]))
-					* ((maxlikeli-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
-				}
+				}else{/* mass==0,式は1つ上と一緒 */
+					Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-0.5)
+					* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
+				}/* if:else */
 
 	/* 傾きを取らない */
 //				Mass_ErrMin = massbin[mass-1];
@@ -501,7 +501,8 @@ int main(int argc, char **argv){
 	/* 最尤値の質量を越えてなおかつ，最大値から1/2を引いたものを下回った場合，	*/
 	/* その番号を記録しループから抜ける.													*/
 	/*	最後の質量値まで来ない場合は強制トリガー											*/
-			if((likelimass < massbin[mass] && (maxlikeli - 0.5) > likeli[mass][smpl])||mass==(ssdnum-1)){
+			if((likelimass < massbin[mass] && (maxlikeli - 0.5) > likeli[mass][smpl]) 
+				||mass==(ssdnum-1)){
 
 	/* not used */
 				NLL_ErrMax = likeli[mass-1][smpl];
@@ -509,11 +510,11 @@ int main(int argc, char **argv){
 	/* 越えた値から越える1つ前の値で傾きを取る．							*/
 	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
 				if(likeli[mass-1][smpl]>likeli[mass][smpl]){/* 正常 */
-					Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-likeli[mass-1][smpl])) 
+					Mass_ErrMax = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-0.5) 
 					* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
 				}else{
-					Mass_ErrMax = massbin[mass] - (0.5 - (likeli[mass][smpl]-maxlikeli)) 
-					* ((massbin[mass]-likelimass)/(likeli[mass][smpl]-maxlikeli));
+					Mass_ErrMax = massbin[mass] + (maxlikeli-likeli[mass][smpl]-0.5) 
+					* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
 				}//if
 	/* 傾きを取らない */
 //				Mass_ErrMax = massbin[mass];
