@@ -95,12 +95,14 @@ class MCS_Distribution{
 private:
 	double th_lim = (double)M_PI;
 	double eps = 0.0001;
+/* practice( how to use "class") */
 	double m_a;
 	double m_range;
 	double m_mass;
 	double m_step;
 	double m_error;
 //	double cell_length = 29215.3;/* 29215.3micron */
+/* practice end */
 
 public:
 	double th;
@@ -195,7 +197,13 @@ int main(int argc, char *argv[])
 		while(reading_file[i] && getline(reading_file[i], RF))
 		{
 			sscanf(RF.c_str(),"%lf %lf %lf",&data[j][i].mass,&data[j][i].range,&data[j][i].ssdx);
+
+	/* try func operate */
+//			data[j][i].theta = atan( data[j][i].ssdx * (double)sqrt(3)/step );
+
+	/* is not. */
 			data[j][i].theta = data[j][i].ssdx * (double)sqrt(3)/step;
+
 			j++;
 		}
 		reading_file[i].close();

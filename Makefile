@@ -3,7 +3,7 @@
 .SUFFIXES: .O .C .S
 .DEFAULT:
 
-TARGET = LogLikelihood MCS_massrange Max_L_Est PDG_gen_ssd c1111 g4debug gen_g4ssd imputR likelihooood mc_loglikelihood mc_likelihood meas_q pid_config ref2ssd sample sample_g4 test_ssd thing chi2L likeli_convert
+TARGET = LogLikelihood MCS_massrange massrange Max_L_Est PDG_gen_ssd c1111 g4debug gen_g4ssd imputR likelihooood mc_loglikelihood mc_likelihood meas_q pid_config ref2ssd sample sample_g4 test_ssd thing chi2L likeli_convert
 TARGETROOT = LLGraph LRgraph ssdhist ssdhist_chi2test trdraw trdraw-b trdraw-e
 TARGETCOPY = G4referenceout.awk
 
