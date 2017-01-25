@@ -57,9 +57,12 @@ int main(int argc, char **argv){
 	}//if
 
 	for(int i=0;i<vec_ll.size();i++){
-		if(conv_flag==1)vec_ll[i].ll=log(vec_ll[i].ll);
-		else vec_ll[i].ll=exp(vec_ll[i].ll);
-		sprintf(buf,"%s\t%lf\t%d\n",vec_ll[i].name,vec_ll[i].ll,vec_ll[i].cnt);
+		if(conv_flag==1){
+			vec_ll[i].ll=log(vec_ll[i].ll);
+		}else{
+			vec_ll[i].ll=exp(vec_ll[i].ll);
+		}
+		sprintf(buf,"%s\t%10e\t%d\n",vec_ll[i].name,vec_ll[i].ll,vec_ll[i].cnt);
 		ofs << buf;
 	}//for
 	cerr << "final output line: " << buf;

@@ -421,6 +421,9 @@ int main(int argc, char **argv){
 	std::cerr << "Calc Maximum Likelihood Estimation..." << std::endl;
 	/* 標準出力データの説明 */
 	std::cout << "SampleID\tMaxL\tMass\tM_Min\tM_Max" << std::endl;
+
+	double sigma = 1.;
+	double NinetyCL=1.644855;//(unit:sigma)
 	
 	/* run times of sample number */
 	for(int smpl=0;smpl<count;smpl++){
@@ -433,8 +436,9 @@ int main(int argc, char **argv){
 		double Mass_ErrMin=0.;
 		double Mass_ErrMax=0.;
 
-	/* 最低質量値での尤度を記録 */
-		maxlikeli=likeli[0][smpl];
+	/* 最低質量値での尤度/質量を記録 */
+		maxlikeli = likeli[0][smpl];
+		likelimass = massbin[0];
 
 	/* 1つの飛跡分の最尤推定を行う:最大値の確定 */
 		for(mass=0;mass<ssdnum;mass++){
@@ -452,11 +456,38 @@ int main(int argc, char **argv){
 	/* 改行(サンプル区切り) */
 		writing_file << std::endl;
 
-	/* 質量値が最小値または,最大値であった場合 */
-		if(likelimass==massbin[0]||likelimass==massbin[ssdnum-1]){
+	/* 質量値が最大値であった場合 */
+		if(likelimass==massbin[ssdnum-1]){
 
-	/* 質量値を表示する． */
-			sprintf(linebuffer, "%s\t%4.2lf\t%.0lf\t---\t---",s_id[0][smpl].sampleid,maxlikeli,likelimass);
+	/* 最大値から90%CLの質量値の確定 */
+			for(mass=0;mass<ssdnum;mass++){
+	/* 最大値から90%CLとなる値を引いたものを越える場合、その一つ前の番号を記録 */
+				if((maxlikeli - NinetyCL*NinetyCL/2.) < likeli[mass][smpl]){
+
+	/* 越えた値から越える1つ前の値で傾きを取る。							*/
+	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
+					if(mass!=0){
+						if(likeli[mass-1][smpl]<likeli[mass][smpl]){//正常
+							Mass_ErrMin = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-NinetyCL*NinetyCL/2.)
+							* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
+						}else{				
+							Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-NinetyCL*NinetyCL/2.)
+							* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
+						}//if
+					}else{/* mass==0,式は1つ上と一緒 */
+						Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-NinetyCL*NinetyCL/2.)
+						* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
+					}/* if:else */
+
+					break;
+
+				}//if and for-loop end
+		
+			}//for
+
+	/* 質量値の下限値90%CLを表示する． */
+			sprintf(linebuffer, "%s\t%4.2lf\t(90%%CL)>%.0lf\t---",s_id[0][smpl].sampleid,maxlikeli,Mass_ErrMin);
+//			fprintf(stderr,
 			std::cout << linebuffer << std::endl;
 			//writing_file << linebuffer << std::endl;
 
@@ -464,10 +495,41 @@ int main(int argc, char **argv){
 			continue;
 		}//if
 
+	/* 質量値が最小値であった場合 */
+		if(likelimass==massbin[0]){
+
+	/* 最大値から90%CLの質量値の確定 */
+			for(mass=0;mass<ssdnum;mass++){
+	/* 最尤値の質量を越えてなおかつ，最大値から90%CLとなる値を引いたものを下回った場合，	*/
+	/* その番号を記録しループから抜ける.													*/
+	/*	最後の質量値まで来ない場合は強制トリガー											*/
+				if((likelimass < massbin[mass] && (maxlikeli - NinetyCL*NinetyCL/2.) > likeli[mass][smpl]) 
+					||mass==(ssdnum-1)){
+
+	/* 越えた値から越える1つ前の値で傾きを取る．							*/
+	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
+					if(likeli[mass-1][smpl]>likeli[mass][smpl]){/* 正常 */
+						Mass_ErrMax = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-NinetyCL*NinetyCL/2.) 
+						* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
+					}else{
+						Mass_ErrMax = massbin[mass] + (maxlikeli-likeli[mass][smpl]-NinetyCL*NinetyCL/2.) 
+						* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
+					}//if
+
+					break;
+				}//if and for-loop end
+
+			}//for
+
+	/* 質量値の上限値90%CLを表示する */
+			sprintf(linebuffer,"%s\t%4.2lf\t(90%%CL)<%.0lf\t---",s_id[0][smpl].sampleid,maxlikeli,Mass_ErrMax);
+			continue;
+		}//if
+
 	/* 最大値から±1の質量値の確定 */
 		for(mass=0;mass<ssdnum;mass++){
 	/* 最大値から1/2を引いたものを越える場合、その一つ前の番号を記録 */
-			if((maxlikeli - 0.5) < likeli[mass][smpl]){
+			if((maxlikeli - sigma*sigma*0.5) < likeli[mass][smpl]){
 
 	/* not used */
 				if(mass!=0)NLL_ErrMin = likeli[mass-1][smpl];
@@ -477,14 +539,14 @@ int main(int argc, char **argv){
 	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
 				if(mass!=0){
 					if(likeli[mass-1][smpl]<likeli[mass][smpl]){//正常
-						Mass_ErrMin = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-0.5)
+						Mass_ErrMin = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-sigma*sigma*0.5)
 						* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
 					}else{				
-						Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-0.5)
+						Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-sigma*sigma*0.5)
 						* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
 					}//if
 				}else{/* mass==0,式は1つ上と一緒 */
-					Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-0.5)
+					Mass_ErrMin = massbin[mass] + (maxlikeli-likeli[mass][smpl]-sigma*sigma*0.5)
 					* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
 				}/* if:else */
 
@@ -501,7 +563,7 @@ int main(int argc, char **argv){
 	/* 最尤値の質量を越えてなおかつ，最大値から1/2を引いたものを下回った場合，	*/
 	/* その番号を記録しループから抜ける.													*/
 	/*	最後の質量値まで来ない場合は強制トリガー											*/
-			if((likelimass < massbin[mass] && (maxlikeli - 0.5) > likeli[mass][smpl]) 
+			if((likelimass < massbin[mass] && (maxlikeli - sigma*sigma*0.5) > likeli[mass][smpl]) 
 				||mass==(ssdnum-1)){
 
 	/* not used */
@@ -510,10 +572,10 @@ int main(int argc, char **argv){
 	/* 越えた値から越える1つ前の値で傾きを取る．							*/
 	/* 越えた質量値から，傾きの逆数に0.5をかけた質量の変化量を引く */
 				if(likeli[mass-1][smpl]>likeli[mass][smpl]){/* 正常 */
-					Mass_ErrMax = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-0.5) 
+					Mass_ErrMax = massbin[mass-1] + (maxlikeli-likeli[mass-1][smpl]-sigma*sigma*0.5) 
 					* ((massbin[mass]-massbin[mass-1])/(likeli[mass][smpl]-likeli[mass-1][smpl]));
 				}else{
-					Mass_ErrMax = massbin[mass] + (maxlikeli-likeli[mass][smpl]-0.5) 
+					Mass_ErrMax = massbin[mass] + (maxlikeli-likeli[mass][smpl]-sigma*sigma*0.5) 
 					* ((likelimass-massbin[mass])/(maxlikeli-likeli[mass][smpl]));
 				}//if
 	/* 傾きを取らない */
