@@ -118,6 +118,6 @@ int main(int argc, char **argv){
 	gPad->Modified();
 	TLegend *tl = c->BuildLegend(0.88, 0.55, 0.99, 0.95, "Sample");
 
-	((TRint*)gROOT->GetApplication())->SetPrompt("Rooooooooot [%d]");
+//	((TRint*)gROOT->GetApplication())->SetPrompt("Rooooooooot [%d]");
 	app.Run();
 }
