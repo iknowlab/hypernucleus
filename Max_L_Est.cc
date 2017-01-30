@@ -517,12 +517,14 @@ int main(int argc, char **argv){
 					}//if
 
 					break;
+
 				}//if and for-loop end
 
 			}//for
 
 	/* 質量値の上限値90%CLを表示する */
 			sprintf(linebuffer,"%s\t%4.2lf\t(90%%CL)<%.0lf\t---",s_id[0][smpl].sampleid,maxlikeli,Mass_ErrMax);
+			std::cout << linebuffer << std::endl;
 			continue;
 		}//if
 
