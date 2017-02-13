@@ -42,14 +42,14 @@ public:
 		const Int_t NCont = 50;
 		Int_t MyPalette[NCont];
 		int bin;
-		if(slide==0)bin=5;
+		if(slide%10==0)bin=5;
 		else bin=4;
 		const Int_t NRGBs = bin;
 		Double_t red[NRGBs];
 		Double_t green[NRGBs];
 		Double_t blue[NRGBs];
 		Double_t stop[NRGBs];
-		if(slide==0){
+		if(slide%10==0){
 			red[0]=0.0;		red[1]=0.0;		red[2]=0.87;
 			red[3]=1.0;		red[4]=1.0;
 			green[0]=0.0;	green[1]=0.81;	green[2]=1.0;
@@ -115,7 +115,7 @@ public:
 	void Runn(int slide){
 		c.cd();
 
-		if(slide!=0)SetWS(600,600);	
+		if((slide/10)%10==1)SetWS(600,600);	
 		c.SetFillColor(0);
 //		c.SetFrameFillStyle(1);
 		c.SetFrameFillColor(kGray);
@@ -124,9 +124,10 @@ public:
 
 		mg1.Draw("APL");
 		mg1.SetTitle("RMS by Range");
-		if(slide!=0)mg1.SetTitle("Caluculation of #delta_{0}, Range#leq6mm, Step 100 #mum");
+		if((slide/10)%10==1)mg1.SetTitle("Caluculation of #delta_{0}, Range#leq6mm, Step 100 #mum");
 		mg1.SetMinimum(0.);
 		mg1.GetYaxis()->SetTitle("#delta_{X'} [#mum]");
+		if((slide/10)%10==1)mg1.GetYaxis()->SetTitle("#delta_{0} [#mum]");
 		mg1.GetXaxis()->SetTitle("Range [#mum]");
 		gPad->Modified();
 
@@ -137,7 +138,7 @@ public:
 		mg1.GetXaxis()->SetLabelColor(kBlue+4);
 		mg1.GetYaxis()->SetAxisColor(1);
 
-		if(slide==0){
+		if((slide==0/10)%10==0){
 			TLegend *tl = c.BuildLegend(0.55,0.75,0.9,0.9,"2nd diff");
 			tl->SetFillStyle(0);
 			tl->SetTextColor(kBlue+4);
@@ -164,17 +165,23 @@ int main(int argc, char* argv[]){
 	if(argc<2){
 		cerr << "TrDraw [option] datfile(s)" << endl;
 		cerr << "datfile is writen by 2law (Range : dx)" << endl;
-		cerr << "Option: [-s] for showing on a slide" << endl;
+		cerr << "Option:\t[-s] for showing on a slide" << endl;
+		cerr << "\t[-n] Normalize Graph size 600*600 px" << endl;
 		exit(1);
 	}//if
 	
 	/* use for slide */
 	int slide = 0;
 	int param = 0;
-	if(strncmp(argv[1],"-s",2)==0){
+	if(strncmp(argv[1],"-s",2)==0 || strncmp(argv[2],"-s",2)==0){
 		slide++;
 		param++;
 	}
+	if(strncmp(argv[1],"-n",2)==0 || strncmp(argv[2],"-n",2)==0){
+		slide+=10;
+		param++;
+	}
+
 	char *filename[argc-param];
 	filename[0]=argv[0];//imput program name
 	for(int index=1;index<argc-param;index++){
