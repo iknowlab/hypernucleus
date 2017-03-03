@@ -19,7 +19,8 @@ int main(int argc,char **argv)//main
 {
 	if(argc<2){
 		fprintf(stderr,"usage)\n%s ssdfile(*)\n",argv[0]);
-		fprintf(stderr,"option: [-b nbins Low High]\n");
+		fprintf(stderr,"option: [-b nbins Low High] set bin\n");
+		fprintf(stderr,"option: [-s] slide mode");
 		return 0;
 	}
 
