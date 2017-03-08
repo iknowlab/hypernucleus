@@ -194,10 +194,10 @@ int main(int argc, char *argv[])
 		/* specific mass flag */
 		double P_flag[4];
 		for(int i=0;i<4;i++)P_flag[i]=0.;
-		if(M_Max>	139.57	&&	139.57	>M_Min)P_flag[0]=139.57;//pion
-		if(M_Max>	493.677	&&	493.677	>M_Min)P_flag[1]=493.677;//kaon
-		if(M_Max>	938.27	&&	938.27	>M_Min)P_flag[2]=938.27;//proton
-		if(M_Max>	1321.31	&&	1321.31	>M_Min)P_flag[3]=1321.31;//xi
+		if(M_Max>	138	&&	140	>M_Min)P_flag[0]=139.57;//pion
+		if(M_Max>	492	&&	494	>M_Min)P_flag[1]=493.677;//kaon
+		if(M_Max>	937	&&	939	>M_Min)P_flag[2]=938.27;//proton
+		if(M_Max>	1320	&&	1322	>M_Min)P_flag[3]=1321.31;//xi
 
 	/* 8<--------------- write file -------------->8 */
 	/* calc (specific mass only) */
@@ -216,6 +216,14 @@ int main(int argc, char *argv[])
 	{
 		/* various mass */
 		sprintf(write_filename,"mcRMS_%04d.dat",(int)Mass_Bin[j]);
+		
+		if(Mass_Bin[j] > 138	&&	140 > Mass_Bin[j])Mass_Bin[j]=139.57;//pion
+		if(Mass_Bin[j] > 492	&&	494 > Mass_Bin[j])Mass_Bin[j]=493.677;//kaon
+		if(Mass_Bin[j] > 937	&&	939 > Mass_Bin[j])Mass_Bin[j]=938.27;//proton
+		if(Mass_Bin[j] >1320	&&	1322> Mass_Bin[j])Mass_Bin[j]=1321.31;//xi
+	
+//debug
+//		std::cerr << Mass_Bin[j] << std::endl;
 		
 		MCScalc(write_filename,Range,Step,IZ,RR,D,Mass_Bin[j],MeasError);
 
